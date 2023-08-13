@@ -45,7 +45,7 @@ export function renderPostsPageComponent({ appEl }) {
         <p class="post-likes-text">
          Нравится: <strong>${post.likes.length}</strong>
         </p>
-        ${user._id === post.user.id
+        ${user?._id === post.user.id
           ? `<button class="button delete-button" style="margin-left: auto" id="delete-button" data-post-id="${post.id}" data-index="${index}">Удалить пост</button>`
           : ''}
       </div>
@@ -64,7 +64,7 @@ export function renderPostsPageComponent({ appEl }) {
   })
 
   document.addEventListener("click", (event) => {
-    if (event.target.classList.contains("like-button")) {
+    if (event.target.classList.contains("like-button") && token) {
       const index = event.target.dataset.index;
       const post = posts[index];
 
