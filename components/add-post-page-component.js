@@ -32,10 +32,13 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
     }
 
     document.getElementById("add-button").addEventListener("click", () => {
-      const description = document.getElementById('comment-text').value;
-       
+      const textarea = document.getElementById('comment-text');
+      const description = textarea.value.trim();
+      const div = document.createElement('div');
+      div.innerText = description;
+      
       onAddPostClick({
-        description,
+        description: div.innerHTML,
         imageUrl,
       });
     });

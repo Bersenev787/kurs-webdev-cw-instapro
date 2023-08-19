@@ -1,7 +1,7 @@
 // Замени на свой, чтобы получить независимый от других набор данных.
 // "боевая" версия инстапро лежит в ключе prod 
 // "maksim-bersenev"
-const personalKey = 'prod';
+const personalKey = 'maksim-bersenev';
 const baseHost = "https://webdev-hw-api.vercel.app";
 export const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
@@ -116,9 +116,8 @@ export async function onDeletePost({token, id}) {
         Authorization: token,
       },
     }).then(res => {
-      if (res.status !== 201) throw new Error()
+      if (res.status !== 200) throw new Error()
     }).catch(e => {
-      throw Error(e)
+      console.log(e)
     })
-   
 }

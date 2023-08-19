@@ -2,8 +2,7 @@ import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage, token, user } from "../index.js";
 import { onDeletePost, toggleLike } from "../api.js";
-
-
+import { formatDistance, subDays } from 'date-fns'
 
 export function renderPostsPageComponent({ appEl }) {
   // TODO: реализовать рендер постов из api
@@ -40,7 +39,7 @@ export function renderPostsPageComponent({ appEl }) {
       </div>
       <div class="post-likes">
         <button id="like-button" data-post-id="${post.id}" data-index="${index}" class="like-button">
-          <img src="${pathToLikeImg}/like-${post.likes.length ? 'active' : 'not-active'}.svg">
+          <img src="${pathToLikeImg}/like-${post.isLiked ? 'active' : 'not-active'}.svg">
         </button>
         <p class="post-likes-text">
          Нравится: <strong>${post.likes.length}</strong>
@@ -54,14 +53,17 @@ export function renderPostsPageComponent({ appEl }) {
         ${post.description}
       </p>
       <p class="post-date">
-        ${post.createdAt}
-        19 минут назад
+        ${getFormatDateDistance(post.createdAt)}
       </p>   
     `;
 
       listEl.innerHTML = userPost;
       postEl.appendChild(listEl);
   })
+
+  function getFormatDateDistance(time) {
+    return formatDistance(subDays(new Date(), new Date(time).getMinutes()), new Date())
+  }
 
   document.addEventListener("click", (event) => {
     if (event.target.classList.contains("like-button") && token) {
@@ -73,7 +75,7 @@ export function renderPostsPageComponent({ appEl }) {
         const likeImage = likeButton.querySelector("img");
         const likesCount = likeButton.nextElementSibling.querySelector("strong");
 
-        likeImage.src = `${pathToLikeImg}/like-${data.isLiked || data.likes.length ? 'active' : 'not-active'}.svg`;
+        likeImage.src = `${pathToLikeImg}/like-${data.isLiked ? 'active' : 'not-active'}.svg`;
         likesCount.textContent = data.likes.length;
 
         post.isLiked = data.isLiked;
@@ -86,7 +88,7 @@ export function renderPostsPageComponent({ appEl }) {
       const postId = posts[index].id;
 
       onDeletePost({ token, id: postId }).then(() => {
-        // сервер ответ 500
+        window.location.reload();
       })
     }
   });
