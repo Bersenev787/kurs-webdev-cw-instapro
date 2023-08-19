@@ -1,11 +1,12 @@
 // Замени на свой, чтобы получить независимый от других набор данных.
-// "боевая" версия инстапро лежит в ключе prod
-const personalKey = "prod";
+// "боевая" версия инстапро лежит в ключе prod 
+// "maksim-bersenev"
+const personalKey = 'maksim-bersenev';
 const baseHost = "https://webdev-hw-api.vercel.app";
-const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
+export const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
-export function getPosts({ token }) {
-  return fetch(postsHost, {
+export async function getPosts({ token }) {
+  return await fetch(postsHost, {
     method: "GET",
     headers: {
       Authorization: token,
@@ -16,6 +17,24 @@ export function getPosts({ token }) {
         throw new Error("Нет авторизации");
       }
 
+      return response.json();
+    })
+    .then((data) => {
+      return data.posts;
+    });
+}
+
+export function getUserPosts({ token, userId }) {
+  return fetch(`${postsHost}/user-posts/${userId}`, {
+    method: "GET",
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (response.status === 401) {
+        throw new Error("Нет авторизации");
+      }
       return response.json();
     })
     .then((data) => {
@@ -67,4 +86,38 @@ export function uploadImage({ file }) {
   }).then((response) => {
     return response.json();
   });
+}
+
+export async function toggleLike({ token, postId, isLiked }) {
+  const likeOrDislike = isLiked ? 'dislike' : 'like';
+
+  return fetch(`${postsHost}/${postId}/${likeOrDislike}`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  })
+    .then((response) => {
+      if (response.status !== 200) {
+        throw new Error();
+      }
+      return response.json();
+    })
+    .then((data) => {
+      return data.post;
+    });
+}
+
+export async function onDeletePost({token, id}) {
+
+    await fetch(`${postsHost}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: token,
+      },
+    }).then(res => {
+      if (res.status !== 200) throw new Error()
+    }).catch(e => {
+      console.log(e)
+    })
 }

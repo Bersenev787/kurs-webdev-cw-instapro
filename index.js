@@ -15,13 +15,15 @@ import {
   removeUserFromLocalStorage,
   saveUserToLocalStorage,
 } from "./helpers.js";
+import { postsHost, getUserPosts } from "./api.js";
 
 export let user = getUserFromLocalStorage();
 export let page = null;
 export let posts = [];
+export let token = '';
 
 const getToken = () => {
-  const token = user ? `Bearer ${user.token}` : undefined;
+  token = user ? `Bearer ${user.token}` : undefined;
   return token;
 };
 
@@ -69,9 +71,15 @@ export const goToPage = (newPage, data) => {
     if (newPage === USER_POSTS_PAGE) {
       // TODO: реализовать получение постов юзера из API
       console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
-      posts = [];
-      return renderApp();
+      const { userId } = data;
+      page = LOADING_PAGE;
+      renderApp();
+      
+      return getUserPosts({token, userId}).then(res => {
+        page = USER_POSTS_PAGE;
+        posts = res;
+        renderApp();
+      })
     }
 
     page = newPage;
@@ -109,7 +117,18 @@ const renderApp = () => {
   if (page === ADD_POSTS_PAGE) {
     return renderAddPostPageComponent({
       appEl,
-      onAddPostClick({ description, imageUrl }) {
+      async onAddPostClick({ description, imageUrl }) {
+        await fetch(postsHost, {
+          method: 'POST',
+          headers: {
+            Authorization: token,
+          },
+          body: JSON.stringify({ description, imageUrl })
+        }).then(res => {
+          if (res.status !== 201) throw new Error()
+        }).catch(e => {
+          throw Error(e)
+        })
         // TODO: реализовать добавление поста в API
         console.log("Добавляю пост...", { description, imageUrl });
         goToPage(POSTS_PAGE);
@@ -125,8 +144,10 @@ const renderApp = () => {
 
   if (page === USER_POSTS_PAGE) {
     // TODO: реализовать страницу фотографию пользвателя
-    appEl.innerHTML = "Здесь будет страница фотографий пользователя";
-    return;
+    // appEl.innerHTML = "Здесь будет страница фотографий пользователя";
+    return renderPostsPageComponent({
+      appEl,
+    });
   }
 };
 

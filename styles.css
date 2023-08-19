@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 .page-container {
   padding: 0 20px;
 }
@@ -91,6 +95,10 @@
   padding-left: 0px;
   padding-bottom: 5px;
   cursor: pointer;
+}
+
+.like-button > img {
+  pointer-events: none;
 }
 
 .user-name {
